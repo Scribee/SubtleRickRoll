@@ -47,18 +47,16 @@ function revealText() {
   var text = DocumentApp.getActiveDocument().getBody().editAsText();
   var indices = text.getTextAttributeIndices();
 
-  for (var i = 0; i < text.getTextAttributeIndices().length - 1; i++) {    
+  for (var i = 0; i < text.getTextAttributeIndices().length; i++) {    
     if (text.getForegroundColor(indices[i]) === "#3c3c3c") {
       Logger.log(indices[i] + " : should be chillin");
     }
     else if (text.getForegroundColor(indices[i]) !== "#3c3c3c") {
-      text.deleteText(indices[i], indices[i + 1] - 1);
-      Logger.log("deleted : " + text.getForegroundColor(indices[i]));
+      text.deleteText(indices[i], i === indices.length - 1 ? text.getText().length - 1 : indices[i + 1] - 1);
       i--;
     }
     indices = text.getTextAttributeIndices();
   }
-  text.deleteText(indices[indices.length - 1], text.getText().length - 1);
 }
 
 /**
@@ -72,10 +70,9 @@ function changeLinks() {
   style[DocumentApp.Attribute.LINK_URL] = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
   style[DocumentApp.Attribute.UNDERLINE] = false;
   
-  for (var i = 0; i < indices.length - 1; i++) {
+  for (var i = 0; i < indices.length; i++) {
     if (text.getLinkUrl(indices[i]) != null) {
-      style[DocumentApp.Attribute.FOREGROUND_COLOR] = text.getForegroundColor(indices[i]);
-      text.setAttributes(indices[i],  i === indices.length - 2 ? text.getText().length - 1 : indices[i + 1] - 1, style);
+      text.setAttributes(indices[i],  i === indices.length - 1 ? text.getText().length - 1 : indices[i + 1] - 1, style);
     }
   }
 }
