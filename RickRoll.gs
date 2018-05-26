@@ -1,17 +1,27 @@
 // @OnlyCurrentDoc
 
 var replacementText = "Were no strangers to love, You know the rules and so do I. A full commitments what Im thinking of, You wouldnt get this from any other guy. I just wanna tell you how Im feeling, Gotta make you understand, Never gonna give you up, Never gonna let you down, Never gonna run around and desert you. Never gonna make you cry, Never gonna say goodbye, Never gonna tell a lie and hurt you. Weve known each other for so long, Your hearts been aching but youre too shy to say it. Inside we both know whats been going on, We know the game and were gonna play it. And if you ask me how Im feeling, Dont tell me youre too blind to see, Never gonna give you up, Never gonna let you down, Never gonna run around and desert you. Never gonna make you cry, Never gonna say goodbye, Never gonna tell a lie and hurt you. Never gonna give you up, Never gonna let you down, Never gonna run around and desert you. Never gonna make you cry, Never gonna say goodbye, Never gonna tell a lie and hurt you. Never gonna give, never gonna give. Never gonna give, never gonna give. Weve known each other for so long. Your hearts been aching but youre too shy to say it. Inside we both know whats been going on, We know the game and were gonna play it. I just wanna tell you how Im feeling, Gotta make you understand. Never gonna give you up, Never gonna let you down, Never gonna run around and desert you. Never gonna make you cry, Never gonna say goodbye, Never gonna tell a lie and hurt you. Never gonna give you up, Never gonna let you down, Never gonna run around and desert you. Never gonna make you cry, Never gonna say goodbye, Never gonna tell a lie and hurt you. Never gonna give you up, Never gonna let you down, Never gonna run around and desert you. Never gonna make you cry.";
+var replacementLink = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
 
 function onOpen(e) {
   var ui = DocumentApp.getUi();
   ui.createMenu("Subtle Rick Roll")
      .addSubMenu(ui.createMenu("Embed lyrics")
-        .addItem("do sneaky things ;D", "hideText")
+        .addItem("do sneaky things ;D", "embedText")
         .addItem("reveal sneaky things :o", "revealText"))
      .addItem("Fix links", "changeLinks")
      .addSeparator()
      .addItem("Settings", "showSidebar")
      .addToUi();
+  
+  var userProperties = PropertiesService.getUserProperties();
+  
+  if (userProperties.getProperty("textToEmbed") === null) {
+    setSettings(replacementText, null, null, null);
+  }
+  if (userProperties.getProperty("replacementLink") === null) {
+    setSettings(null, replacementLink, null, null);
+  }
 }
 
 function onInstall(e) {
@@ -20,9 +30,12 @@ function onInstall(e) {
 
 /**
  * Changes the color of each character in the source document that matches with the
- * lyrics to "Never Gonna Give You Up" by Rick Astley.
+ * text specified by the user.
  */        
-function hideText() {
+function embedText() {
+  var newText = getSettings()["textToEmbed"];
+  var caseSensitive = getSettings()["isCaseSensitive"];
+  var looping = getSett0;ings()["isLoopingAllowed"];
   var pos = 0;
   var body = DocumentApp.getActiveDocument().getBody().editAsText();
   var text = body.getText();
@@ -30,18 +43,26 @@ function hideText() {
   var style = {};
   style[DocumentApp.Attribute.FOREGROUND_COLOR] = "#3c3c3c";
   
-  for (var i = 0; i < text.length; i++) {
-    if (text.charAt(i).toLowerCase() === replacementText.charAt(pos).toLowerCase()) {
+  for (var i = 0; i < text.length && pos < newText.length; i++) {
+    if (!caseSensitive && text.charAt(i).toLowerCase() === newText.charAt(pos).toLowerCase()) {
       body.setAttributes(i, i, style);
       pos++;
+    }
+    else if (text.charAt(i) === newText.charAt(pos)) {
+      body.setAttributes(i, i, style);
+      pos++;      
+    }
+    
+    if (looping && pos === newText.length) {
+     pos = 0; 
     }
   }
 }
 
 /**
  * Removes every character that isn't colored "#3c3c3c", which is used to
- * indicate the character was colored as part of the song lyrics.
- * After execution, the document should only contain the lyrics that were hidden.
+ * indicate the character was colored as part of the embedded text.
+ * After execution, the document should only contain the text that was embedded.
  */
 function revealText() {
   var text = DocumentApp.getActiveDocument().getBody().editAsText();
@@ -60,14 +81,15 @@ function revealText() {
 }
 
 /**
- * Replaces the link Url for every link in the document with a link to the music video.
+ * Replaces the link url for every link in the document with a link
+ * specified by the user.
  */
 function changeLinks() {
   var text = DocumentApp.getActiveDocument().getBody().editAsText();
   var indices = text.getTextAttributeIndices();
   
   var style = {};
-  style[DocumentApp.Attribute.LINK_URL] = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
+  style[DocumentApp.Attribute.LINK_URL] = getSettings()["replacementLink"];
   style[DocumentApp.Attribute.UNDERLINE] = false;
   
   for (var i = 0; i < indices.length; i++) {
@@ -80,4 +102,34 @@ function changeLinks() {
 function showSidebar() {
   var ui = HtmlService.createHtmlOutputFromFile("sidebar").setTitle("Settings");
   DocumentApp.getUi().showSidebar(ui);
+}
+
+function getSettings() {
+  var userProperties = PropertiesService.getUserProperties();
+  
+  return {
+    isLoopingAllowed: userProperties.getProperty("isLoopingAllowed"),
+    isCaseSensitive: userProperties.getProperty("isCaseSensitive"),
+    textToEmbed: userProperties.getProperty("textToEmbed"),
+    replacementLink: userProperties.getProperty("replacementLink")
+  };
+}
+
+function setSettings(textToEmbed, replacementLink, isLoopingAllowed, isCaseSensitive) {
+  var userProperties = PropertiesService.getUserProperties();
+  
+  if (textToEmbed !== null) {
+    userProperties.setProperty("textToEmbed", textToEmbed);
+  }
+  if (replacementLink !== null) {
+    userProperties.setProperty("replacementLink", replacementLink);
+  }
+  if (isLoopingAllowed !== null) {
+    userProperties.setProperty("isLoopingAllowed", isLoopingAllowed);
+  }
+  if (isCaseSensitive !== null) {
+    userProperties.setProperty("isCaseSensitive", isCaseSensitive);
+  }
+  
+  return getSettings();
 }
