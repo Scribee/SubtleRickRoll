@@ -67,8 +67,7 @@ div.confirmation {
 </style>
 
 <div id="sidebar">
-  <!-- https://stackoverflow.com/questions/8082846/form-submit-execute-javascript-best-practice?answertab=votes#tab-top -->
-  <form class="settings" onsubmit="return false;">
+  <form class="settings">
     <div id="lyrics-settings" class="category">
       <h3>Embed lyrics</h3>
       <hr class="light"/>
@@ -96,8 +95,8 @@ div.confirmation {
       </div>
     </div>
     <div id="buttons">
-      <input type="submit" id="save-button" value="Save Settings" class="settings">
-      <input type="reset" id="reset-button" value="Reset to Default" class="settings">
+      <input type="button" id="save-button" value="Save Settings" class="settings">
+      <input type="button" id="reset-button" value="Reset to Default" class="settings">
     </div>
     <br/>
     <hr class="light" id="button-separator"/>
@@ -105,6 +104,9 @@ div.confirmation {
 </div>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
     <script>
+      /**
+       * Get rid of any save messages, make click handlers for the save and reset buttons, and load the current settings.
+       */
       $(function() {
         hideConfirmationMessages();
         $("#save-button").click(saveSettings);
@@ -114,23 +116,37 @@ div.confirmation {
           .getSettings();
       });
       
+      /**
+       * When a form field changes, remove the saved message.
+       */
       $(".settings").change(function() {
         hideConfirmationMessages();
       });
-
+      
+      /**
+       * Updates settings to the values the user has input.
+       */
       function saveSettings() {
         google.script.run
           .withSuccessHandler(showConfirmationMessage)
           .setSettings($("textarea#replacement-text").val(), $("input#replacement-link").val(), $("input#looping-allowed").is(":checked"), $("input#case-sensitive").is(":checked"));
       }
       
+      /**
+       * Displays the provided settings.
+       *
+       * @param {Object} Settings - The settings to populate the form fields with
+       */
       function loadSettings(settings) {
         $("textarea#replacement-text").val(settings["textToEmbed"]);
         $("input#replacement-link").val(settings["replacementLink"]);
-        $("input#case-sensitive").attr("checked", (settings["isCaseSensitive"] === "true"));
         $("input#looping-allowed").attr("checked", (settings["isLoopingAllowed"] === "true"));
+        $("input#case-sensitive").attr("checked", (settings["isCaseSensitive"] === "true"));
       }
       
+      /**
+       * Displays the default settings.
+       */
       function resetSettings() {
         hideConfirmationMessages();
         google.script.run
@@ -138,12 +154,18 @@ div.confirmation {
           .getInitialSettings();
       }
       
+      /**
+       * Creates a div at the bottom of the sidebar that says "Saved settings".
+       */
       function showConfirmationMessage() {
         hideConfirmationMessages();
         var message = $("<div id=\"saved\" class=\"confirmation\"><b>Saved settings</b></div>");
         $("hr#button-separator").after(message);
       }
       
+      /**
+       * Removes any save messages.
+       */
       function hideConfirmationMessages() {
         $(".confirmation").remove();
       }
