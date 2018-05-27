@@ -1,8 +1,5 @@
 // @OnlyCurrentDoc
 
-var replacementText = "Were no strangers to love, You know the rules and so do I. A full commitments what Im thinking of, You wouldnt get this from any other guy. I just wanna tell you how Im feeling, Gotta make you understand, Never gonna give you up, Never gonna let you down, Never gonna run around and desert you. Never gonna make you cry, Never gonna say goodbye, Never gonna tell a lie and hurt you. Weve known each other for so long, Your hearts been aching but youre too shy to say it. Inside we both know whats been going on, We know the game and were gonna play it. And if you ask me how Im feeling, Dont tell me youre too blind to see, Never gonna give you up, Never gonna let you down, Never gonna run around and desert you. Never gonna make you cry, Never gonna say goodbye, Never gonna tell a lie and hurt you. Never gonna give you up, Never gonna let you down, Never gonna run around and desert you. Never gonna make you cry, Never gonna say goodbye, Never gonna tell a lie and hurt you. Never gonna give, never gonna give. Never gonna give, never gonna give. Weve known each other for so long. Your hearts been aching but youre too shy to say it. Inside we both know whats been going on, We know the game and were gonna play it. I just wanna tell you how Im feeling, Gotta make you understand. Never gonna give you up, Never gonna let you down, Never gonna run around and desert you. Never gonna make you cry, Never gonna say goodbye, Never gonna tell a lie and hurt you. Never gonna give you up, Never gonna let you down, Never gonna run around and desert you. Never gonna make you cry, Never gonna say goodbye, Never gonna tell a lie and hurt you. Never gonna give you up, Never gonna let you down, Never gonna run around and desert you. Never gonna make you cry.";
-var replacementLink = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
-
 function onOpen(e) {
   var ui = DocumentApp.getUi();
   ui.createMenu("Subtle Rick Roll")
@@ -17,10 +14,16 @@ function onOpen(e) {
   var userProperties = PropertiesService.getUserProperties();
   
   if (userProperties.getProperty("textToEmbed") === null) {
-    setSettings(replacementText, null, null, null);
+    setSettings(getInitialSettings()["textToEmbed"], null, null, null);
   }
   if (userProperties.getProperty("replacementLink") === null) {
-    setSettings(null, replacementLink, null, null);
+    setSettings(null, getInitialSettings()["replacementLink"], null, null);
+  }
+  if (userProperties.getProperty("isLoopingAllowed") === null) {
+    setSettings(null, null, getInitialSettings()["isLoopingAllowed"]); 
+  }
+  if (userProperties.getProperty("isCaseSensitive") === null) {
+    setSettings(null, null, null, getInitialSettings()["isCaseSensitive"]);   
   }
 }
 
@@ -107,11 +110,14 @@ function showSidebar() {
 function getSettings() {
   var userProperties = PropertiesService.getUserProperties();
   
+    Logger.log(userProperties.getProperty("isLoopingAllowed"));
+    Logger.log(userProperties.getProperty("isCaseSensitive"));
+  
   return {
-    isLoopingAllowed: userProperties.getProperty("isLoopingAllowed"),
-    isCaseSensitive: userProperties.getProperty("isCaseSensitive"),
     textToEmbed: userProperties.getProperty("textToEmbed"),
-    replacementLink: userProperties.getProperty("replacementLink")
+    replacementLink: userProperties.getProperty("replacementLink"),
+    isLoopingAllowed: userProperties.getProperty("isLoopingAllowed"),
+    isCaseSensitive: userProperties.getProperty("isCaseSensitive")
   };
 }
 
@@ -132,4 +138,13 @@ function setSettings(textToEmbed, replacementLink, isLoopingAllowed, isCaseSensi
   }
   
   return getSettings();
+}
+
+function getInitialSettings() {
+  return {
+    textToEmbed: "Were no strangers to love, You know the rules and so do I. A full commitments what Im thinking of, You wouldnt get this from any other guy. I just wanna tell you how Im feeling, Gotta make you understand, Never gonna give you up, Never gonna let you down, Never gonna run around and desert you. Never gonna make you cry, Never gonna say goodbye, Never gonna tell a lie and hurt you. Weve known each other for so long, Your hearts been aching but youre too shy to say it. Inside we both know whats been going on, We know the game and were gonna play it. And if you ask me how Im feeling, Dont tell me youre too blind to see, Never gonna give you up, Never gonna let you down, Never gonna run around and desert you. Never gonna make you cry, Never gonna say goodbye, Never gonna tell a lie and hurt you. Never gonna give you up, Never gonna let you down, Never gonna run around and desert you. Never gonna make you cry, Never gonna say goodbye, Never gonna tell a lie and hurt you. Never gonna give, never gonna give. Never gonna give, never gonna give. Weve known each other for so long. Your hearts been aching but youre too shy to say it. Inside we both know whats been going on, We know the game and were gonna play it. I just wanna tell you how Im feeling, Gotta make you understand. Never gonna give you up, Never gonna let you down, Never gonna run around and desert you. Never gonna make you cry, Never gonna say goodbye, Never gonna tell a lie and hurt you. Never gonna give you up, Never gonna let you down, Never gonna run around and desert you. Never gonna make you cry, Never gonna say goodbye, Never gonna tell a lie and hurt you. Never gonna give you up, Never gonna let you down, Never gonna run around and desert you. Never gonna make you cry.",
+    replacementLink: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    isLoopingAllowed: true,
+    isCaseSensitive: false
+  };
 }
