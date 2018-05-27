@@ -127,8 +127,8 @@ div.confirmation {
       function loadSettings(settings) {
         $("textarea#replacement-text").val(settings["textToEmbed"]);
         $("input#replacement-link").val(settings["replacementLink"]);
-        $("input#case-sensitive").attr("checked", settings["isCaseSensitive"]);
-        $("input#looping-allowed").attr("checked", settings["isLoopingAllowed"]);
+        $("input#case-sensitive").attr("checked", (settings["isCaseSensitive"] === "true"));
+        $("input#looping-allowed").attr("checked", (settings["isLoopingAllowed"] === "true"));
       }
       
       function resetSettings() {
